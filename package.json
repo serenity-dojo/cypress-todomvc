@@ -1,0 +1,22 @@
+{
+  "name": "cypress-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "cypress:run": "cypress run",
+    "cypress:chrome": "cypress run --browser chrome",
+    "cypress:firefox": "cypress run --browser firefox",
+    "cypress:chrome:headless": "cypress run --browser chrome --headless",
+    "cypress:firefox:headless": "cypress run --browser firefox --headless",
+    "cypress:open": "cypress open",
+    "cypress:open:debugger": "DEBUG=cypress:* cypress open",
+    "cypress:run:debugger": "DEBUG=cypress:* cypress run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cypress": "^6.5.0"
+  }
+}
