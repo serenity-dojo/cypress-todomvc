@@ -1,44 +1,109 @@
 /// <reference types="cypress"/>
 
-import { TodoPage } from "../page-objects/todo-page";
+import { addTodo, addTodos } from '../actions/add'
+import { complete } from '../actions/complete'
+import { NewTodoForm } from '../page-components/new-todo-form';
+import { TodoListComponent } from '../page-components/todo-list-component';
 
 describe('When adding new todo items in the TODOMVC app', () => {
 
-    const todoPage = new TodoPage()
+    const todoList = new TodoListComponent()
+    const newTodoForm = new NewTodoForm();
 
     beforeEach(() => {
-        todoPage.open()
+        cy.visit('https://todomvc.com/examples/react/#/')
     })
 
     it('Should tell the user what to do', () => {
-        todoPage.newTodoField().should('have.attr', 'placeholder','What needs to be done?').and('be.enabled')
+        cy.get(".new-todo")
+          .should('have.attr', 'placeholder', 'What needs to be done?')
+          .and('be.enabled')
+    })
+
+    it('Should not show the delete buttons by default', () => {
+        cy.get('.new-todo').type('Feed the cat{enter}')
+
+        cy.get('.todo-list li').should('have.length',1)
+
+        cy.get(".destroy").then(
+             $element => expect($element).to.not.be.visible
+        )
+        cy.get('.todo-list li').then(
+            $el => {
+                expect($el).to.be.visible
+                           .to.have.text('Feed the cat')
+            }
+        )
+
+        cy.contains('Completed').click()
+        cy.get('.todo-list li').should('have.length',0)
+
     })
 
     it('New todo items should appear in the todo list', () => {
-        todoPage.addTodos('Walk the dog','Feed the cat')
 
-        cy.contains('.todo-list li','Walk the dog')
-        cy.contains('.todo-list li','Feed the cat')
-        cy.get("li:nth-child(1)").should('contain.text','Walk the dog')
-        cy.get("li:nth-child(2)").should('contain.text','Feed the cat')
+        cy.get('.new-todo').type('Walk the dog{enter}')
+
+        cy.get('.todo-list li').should('have.length', 1)
+        cy.get('.todo-list li').eq(0).should('have.text', 'Walk the dog')
+    })
+
+    it('should add a new item to the list', () => {
+
+        cy.visit('https://todomvc.com/examples/angularjs/#/')
+
+        cy.get('.new-todo').type('Feed the cats{enter}')
+
+        cy.get('.todo-list li').should('have.length', 1)
+
+        cy.get('.filters').find('[href$="completed"]').click()
+
+        cy.get('.todo-list li').should('have.length', 0)
+    })
+
+    it('Multiple new todo items should appear in order of appearance', () => {
+
+        addTodos('Walk the dog', 'Feed the cat')
+
+        todoList.todos().should('have.length', 2)
+        todoList.todoElementNumber(0).should('have.text', 'Walk the dog')
+
     })
 
     it('Should show completed todos as completed', () => {
-        todoPage.addTodos('Feed the lions','Walk the panther')
-        todoPage.complete('Walk the panther')
-        todoPage.todos().should('have.length',2)
-        todoPage.todoElement('Walk the panther').should('have.class','completed')
+        cy.get('.new-todo').type('Walk the dog{enter}')
+        cy.get('.new-todo').type('Feed the cat{enter}')
+
+        cy.contains('.todo-list li', 'Walk the dog').within(
+            $listItem => { cy.get('.toggle').click() }
+        )
 
     })
 
-    it('Should delete items', () =>  {
-        todoPage.addTodos('Feed the lions','Walk the panther')
-
-        todoPage.delete('Walk the panther')
-
-        todoPage.todos().should('have.length',1)
+    describe('Chai assertions', () => {
+        it('equals', () => {
+            var name = "Sarah"
+            expect(name).to.equal('Sarah')
+        })
+        it('greaterThan', ()=> {
+            var age = 21
+            expect(age).to.be.greaterThan(10)
+            expect(age).to.be.at.least(18)
+        })
         
+        it('deep equals', () => {
+            var client = {name: 'Sarah', age:'40'}
+            expect(client).to.deep.equal({name:'Sarah', age:'40'})
+        })
+
+        it('contain', () => {
+            var pets = ['dog','cat','goldfish']
+            var noPets = []
+
+            expect(pets).not.empty
+            expect(pets).to.contain('dog').but.not.contain('pony')
+                
+        })
     })
 
-    
 });

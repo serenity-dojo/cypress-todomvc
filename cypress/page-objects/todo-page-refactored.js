@@ -1,12 +1,11 @@
-const NEW_TODO = '.new-todo'
-const TODO_ITEMS = '.todo-list li'
-const COMPLETE_BUTTON = '.toggle'
-const DELETE_ICON = '.destroy'
-const REACT_TODOAPP = 'https://todomvc.com/examples/react/#/'
+const NEW_TODO = ".new-todo"
+const TODO_ITEMS = ".todo-list li"
+const COMPLETE_BUTTON = ".toggle"
+const DELETE_ICON = ".destroy"
 
-export class TodoPage {
+export class TodoPageRefactored {
     open() {
-        cy.visit(REACT_TODOAPP)
+        cy.visit('https://todomvc.com/examples/react/#/')
     }
 
     addTodo(todoText) {
@@ -19,15 +18,15 @@ export class TodoPage {
         )
     }
 
-    shouldShowItems(...expectedItems) {
-        this.todos().should('have.length',expectedItems.length)
-        for(var i = 0; i < expectedItems.length; i++) {
-            this.todos().eq(i).should('contain.text', expectedItems[i])
-        }
+    shouldShowItems(...expectedTodos) {
+        for(var i = 0; i < expectedTodos.length; i++) {
+            console.log(expectedTodos[i]);
+            this.todos().eq(i).should('contain.text', expectedTodos[i])
+          }
     }
 
     newTodoField() { return cy.get(NEW_TODO) }
-
+ 
     todos() { return cy.get(TODO_ITEMS) }
 
     todoElement(todoText) {
@@ -40,13 +39,13 @@ export class TodoPage {
         )
     }
 
+    filterBy(filter) {
+        cy.contains(filter).click()
+    }
+
     delete(todoText) {
         this.todoElement(todoText).within(
             $listItem => cy.get(DELETE_ICON).invoke('show').click()
         )
-    }
-
-    filterBy(filter) {
-        cy.contains(filter).click()
     }
 }
